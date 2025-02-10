@@ -55,3 +55,51 @@ func GenerateAllTokens(email string, firstName string, lastName string, uid stri
 
 	return token,refreshToken,err
 }
+
+func ValidateToken(signedToken string) (*SignedDetails, error) {
+	token, err := jwt.ParseWithClaims(
+		signedToken,
+		&SignedDetails{},
+		func(token *jwt.Token) (interface{}, error) {
+			return []byte(SECRET_KEY), nil
+		},
+	)
+	if claims, ok := token.Claims.(*SignedDetails); ok && token.Valid {
+		return claims, nil
+	} else {
+		return nil, err
+	}
+}
+
+func UpdateAllTokens(signedToken string, signedRefreshToken string ,userId string){
+
+    var ctx, cancel = context.WithTimeout(context.Background(),100*time.Second)
+
+	var uptdateObj primitive.D
+
+	uptdateObj = append(uptdateObj, bson.E{"token", signedToken})
+	uptdateObj = append(uptdateObj, bson.E{"refresh_token", signedRefreshToken})
+
+	Updated_at ,_:= time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+	uptdateObj = append(uptdateObj, bson.E{"updated_at", Updated_at})
+
+	upsert := true
+	filter := bson.M{"uid": userId}
+	opt := options.UpdateOptions{
+		Upsert: &upsert,
+	}
+	_, err := userCollection.UpdateOne(
+		ctx, 
+		filter, 
+		bson.D{{"$set", uptdateObj}}, 
+		&opt,
+	)
+
+	defer cancel()
+
+	if err!= nil{
+		log.Panic(err)
+		return
+	}
+	
+}
