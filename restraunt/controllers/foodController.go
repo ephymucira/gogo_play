@@ -212,7 +212,7 @@ func UpdateFood() gin.HandlerFunc{
 		}
 		defer cancel()
 		if result.MatchedCount == 1{
-			c.JSON(http.StatusOK, gin.H{"message":"food item was updated successfully","food": food})
+			c.JSON(http.StatusOK, gin.H{"message":"food item was updated successfully","food": result})
 		}else{
 			c.JSON(http.StatusInternalServerError, gin.H{"error":"food item was not updated"})
 		}

@@ -148,7 +148,7 @@ func UpdateMenu() gin.HandlerFunc{
 			}
 			defer cancel()
 			if result.MatchedCount == 1{
-				c.JSON(http.StatusOK, gin.H{"menu": menu})
+				c.JSON(http.StatusOK, gin.H{"message":"menu item was updated","menu": result})
 			}else{
 				c.JSON(http.StatusInternalServerError, gin.H{"error":"menu item was not updated"})
 			}
